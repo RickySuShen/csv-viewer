@@ -1,4 +1,3 @@
-// app.js
 const { useState, useMemo } = React;
 
 function DataTable({ data }) {
@@ -144,20 +143,13 @@ function App() {
     const file = e.target.files[0];
     if (file) {
       setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onload = function (evt) {
-        const text = evt.target.result;
-        const rows = text.split('\n').filter(Boolean);
-        const headers = rows[0].split(',');
-        const parsed = rows.slice(1).map(row => {
-          const values = row.split(',');
-          const obj = {};
-          headers.forEach((h, i) => obj[h.trim()] = values[i] ? values[i].trim() : "");
-          return obj;
-        });
-        setData(parsed);
-      };
-      reader.readAsText(file);
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          setData(results.data);
+        }
+      });
     }
   }
 
@@ -183,5 +175,4 @@ function App() {
   );
 }
 
-// Render the app
 ReactDOM.render(<App />, document.getElementById('root'));
